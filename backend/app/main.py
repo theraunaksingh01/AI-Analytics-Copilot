@@ -1,11 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.database import engine, Base
+from app.models.file import UploadedFile
+from app.routers import upload
+
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AI Analytics Copilot API")
 
-origins = [
-    "http://localhost:3000",
-]
+origins = ["http://localhost:3000"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,6 +18,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(upload.router)
+
 
 @app.get("/")
 def health_check():
