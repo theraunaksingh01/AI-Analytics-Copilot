@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app.models.file import UploadedFile
 from app.routers import upload
+from app.routers import profile
 
 
 Base.metadata.create_all(bind=engine)
@@ -20,7 +21,7 @@ app.add_middleware(
 )
 
 app.include_router(upload.router)
-
+app.include_router(profile.router)
 
 @app.get("/")
 def health_check():

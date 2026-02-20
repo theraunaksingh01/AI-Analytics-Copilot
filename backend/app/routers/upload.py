@@ -3,11 +3,14 @@ from fastapi import APIRouter, UploadFile, File, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.file import UploadedFile
+from app.services.profiler import profile_dataset
 
 router = APIRouter()
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
 
 @router.post("/upload")
 async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
@@ -27,8 +30,13 @@ async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db
     db.commit()
     db.refresh(db_file)
 
+    profile = profile_dataset(file_location)
+
+
+
     return {
         "id": db_file.id,
         "filename": db_file.filename,
-        "size": db_file.filesize
+        "size": db_file.filesize,
+        "profile": profile
     }
