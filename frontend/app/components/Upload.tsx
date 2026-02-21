@@ -6,6 +6,7 @@
 ───────────────────────────────────────────────────────────── */
 import { useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Plot from 'react-plotly.js'
 
 /* ── Colour tokens (hardcoded so they always render) ─────── */
 const T = {
@@ -68,6 +69,7 @@ interface QueryResult {
   answer: string
   loading: boolean
   generated_code?: string
+  plot?: any
 }
 
 /* ── Helpers ─────────────────────────────────────────────── */
@@ -237,6 +239,7 @@ export default function Upload() {
                     : data.type === "series"
                       ? JSON.stringify(data.data, null, 2)
                       : data.answer,
+              plot: data.type === "plotly" ? data.figure : null,
               loading: false,
               generated_code: data.generated_code,
             }
@@ -621,6 +624,15 @@ export default function Upload() {
                                     >
                                       {r.answer}
                                     </p>
+
+                                    {r.plot && (
+                                      <div style={{ marginTop: '12px' }}>
+                                        <Plot
+                                          {...JSON.parse(r.plot)}
+                                          style={{ width: '100%' }}
+                                        />
+                                      </div>
+                                    )}
 
                                     {r.generated_code && (
                                       <pre

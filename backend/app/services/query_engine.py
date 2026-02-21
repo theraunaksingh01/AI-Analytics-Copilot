@@ -1,5 +1,6 @@
 import os
 import traceback
+from unittest import result
 import pandas as pd
 from groq import Groq
 from dotenv import load_dotenv
@@ -14,12 +15,16 @@ You are a professional data analyst AI.
 You are given a pandas DataFrame called df.
 
 Rules:
-- Use ONLY pandas.
+- Use pandas and plotly.express (px) only.
+- plotly.express is already available as px.
 - Do NOT import anything.
 - Do NOT use open(), os, sys, eval, exec.
-- Do NOT explain.
-- Return only executable Python.
-- Store final result in variable named result.
+- Do NOT explain anything.
+- Return only executable Python code.
+- Store final output in a variable named result.
+
+If visualization is appropriate, create a Plotly figure and assign it to result.
+Otherwise, assign a scalar, pandas DataFrame, or Series to result.
 """
 
 
@@ -48,13 +53,20 @@ Question:
     if "```" in raw_code:
         raw_code = raw_code.replace("```python", "")
         raw_code = raw_code.replace("```", "")
-    
+
     return raw_code.strip()
 
 
-def execute_code(df, code: str):
-    local_vars = {"df": df}
+def execute_code(df, code):
+    import plotly.express as px
+
+    local_vars = {
+        "df": df,
+        "px": px
+    }
+
     exec(code, {}, local_vars)
+
     return local_vars.get("result")
 
 
@@ -94,9 +106,19 @@ def run_query(filepath: str, question: str):
             # =========================
             # 3.1 Structured Response
             # =========================
+            
+            # Detect Plotly figure
+            import plotly.graph_objects as go
+
+            if isinstance(result, go.Figure):
+                return {
+                    "type": "plotly",
+                    "figure": result.to_json(),
+                    "generated_code": code
+                }
            
 
-            if isinstance(result, pd.DataFrame):
+            elif isinstance(result, pd.DataFrame):
                 return {
                     "type": "table",
                     "columns": result.columns.tolist(),
