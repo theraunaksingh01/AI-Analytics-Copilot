@@ -1,0 +1,11 @@
+Product,Revenue,Region,Month,Units
+Laptop,48200,North,Jan,120
+Phone,32100,South,Jan,210
+Tablet,21000,East,Jan,95
+Laptop,51000,West,Feb,134
+Phone,29800,North,Feb,198
+Tablet,19500,South,Feb,88
+Laptop,55200,East,Mar,145
+Phone,34100,West,Mar,223
+Tablet,22000,North,Mar,101
+Laptop,49800,South,Apr,128

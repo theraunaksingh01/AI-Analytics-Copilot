@@ -67,6 +67,7 @@ interface QueryResult {
   question: string
   answer: string
   loading: boolean
+  generated_code?: string
 }
 
 /* ── Helpers ─────────────────────────────────────────────── */
@@ -225,7 +226,21 @@ export default function Upload() {
 
       setResults(prev =>
         prev.map((r, i) =>
-          i === 0 ? { ...r, answer: data.answer, loading: false } : r
+          i === 0
+            ? {
+              ...r,
+              answer:
+                data.type === "scalar"
+                  ? data.answer
+                  : data.type === "table"
+                    ? JSON.stringify(data.rows, null, 2)
+                    : data.type === "series"
+                      ? JSON.stringify(data.data, null, 2)
+                      : data.answer,
+              loading: false,
+              generated_code: data.generated_code,
+            }
+            : r
         )
       )
 
@@ -595,8 +610,36 @@ export default function Upload() {
                                     ))}
                                   </div>
                                 ) : (
-                                  <p style={{ fontSize: '13px', color: T.bodyDark, fontFamily: "'DM Sans',sans-serif", lineHeight: 1.7 }}>{r.answer}</p>
-                                )}
+                                  <>
+                                    <p
+                                      style={{
+                                        fontSize: '13px',
+                                        color: T.bodyDark,
+                                        fontFamily: "'DM Sans',sans-serif",
+                                        lineHeight: 1.7
+                                      }}
+                                    >
+                                      {r.answer}
+                                    </p>
+
+                                    {r.generated_code && (
+                                      <pre
+                                        style={{
+                                          marginTop: '8px',
+                                          background: '#111',
+                                          color: '#00FFB3',
+                                          padding: '10px',
+                                          borderRadius: '8px',
+                                          fontSize: '11px',
+                                          overflowX: 'auto'
+                                        }}
+                                      >
+                                        {r.generated_code}
+                                      </pre>
+                                    )}
+                                  </>
+                                )
+                                }
                               </div>
                             </div>
                           </motion.div>
